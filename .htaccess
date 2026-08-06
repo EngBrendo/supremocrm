@@ -1,0 +1,19 @@
+RewriteEngine on
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule . public/index.php [L]
+
+<Files "config.php">  
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "db.php">  
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "includes.php">  
+    Order allow,deny
+    Deny from all
+</Files>
