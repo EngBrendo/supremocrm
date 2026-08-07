@@ -5,8 +5,6 @@ namespace app\Model;
 use src\classes\db\Table;
 use src\traits\GetSet;
 use PDO;
-use src\classes\mvc\RenderTemplate;
-use src\classes\utils\Utils;
 
 class Contato {
 
@@ -93,10 +91,10 @@ class Contato {
      * Busca contatos pelo nome
      * @method getContatosPorNome
      * @param string $nome
-     * @return string
+     * @return array
      */
     public static function getContatosPorNome($nome){
-        if(!strlen($nome)) return '';
+        if(!strlen($nome)) return [];
 
         $query = 'SELECT a.*, b.nome AS nomeCidade, b.uf, c.nome AS nomeEstado FROM contato a
                 INNER JOIN cidade b ON b.id = a.id_cidade
@@ -104,26 +102,7 @@ class Contato {
                 WHERE a.nome LIKE :nome
                 ORDER BY a.nome ASC';
 
-        $contatos = (new Table('contato'))->query($query, ['nome' => '%'.$nome.'%'])->fetchAll(PDO::FETCH_CLASS, self::class);
-
-        $retorno = '';
-
-        foreach ($contatos as $key => $value) {
-            $variaveisLayout = [
-                'id' => $value->id,
-                'nome' => $value->nome,
-                'telefone' => Utils::formatarTelefone($value->telefone),
-                'cidade' => $value->nomeCidade,
-                'estado' => $value->nomeEstado,
-                'idCidade' => $value->idCidade,
-                'idEstado' => $value->idEstado,
-                'uf' => $value->uf
-            ];
-
-            $retorno .= RenderTemplate::getLayout('contato', $variaveisLayout);
-        }
-
-        return $retorno;
+        return (new Table('contato'))->query($query, ['nome' => '%'.$nome.'%'])->fetchAll(PDO::FETCH_CLASS, self::class);
     }
 
 
@@ -149,20 +128,18 @@ class Contato {
 
         if(!($obTabela)->insert($dadosCadastro)) return ['sucesso' => false, 'mensagem' => 'Erro no cadastro das informações.'];
 
-        $variaveisLayout = [
+        $contato = [
             'id' => $obTabela->getLastInsertId(),
             'nome' => $nome,
-            'telefone' => $telefone,
-            'cidade' => $validacaoContato['cidade']->nome,
-            'estado' => $validacaoContato['estado']->nome,
+            'telefone' => $telefoneSemMascara,
+            'nomeCidade' => $validacaoContato['cidade']->nome,
+            'nomeEstado' => $validacaoContato['estado']->nome,
             'idCidade' => $validacaoContato['cidade']->id,
             'idEstado' => $validacaoContato['estado']->id,
             'uf' => $validacaoContato['estado']->uf
         ];
 
-        $layout = RenderTemplate::getLayout('contato', $variaveisLayout);
-
-        return ['sucesso' => true, 'layout' => $layout, 'mensagem' => ''];
+        return ['sucesso' => true, 'contato' => $contato, 'mensagem' => ''];
     }
 
     /**
@@ -187,20 +164,18 @@ class Contato {
 
         if(!($obTabela)->update('id = :id', $dadosCadastro, ['id' => $idContato])) return ['sucesso' => false, 'mensagem' => 'Erro na edição das informações.'];
 
-        $variaveisLayout = [
+        $contato = [
             'id' => $idContato,
             'nome' => $nome,
-            'telefone' => $telefone,
-            'cidade' => $validacaoContato['cidade']->nome,
-            'estado' => $validacaoContato['estado']->nome,
+            'telefone' => $telefoneSemMascara,
+            'nomeCidade' => $validacaoContato['cidade']->nome,
+            'nomeEstado' => $validacaoContato['estado']->nome,
             'idCidade' => $validacaoContato['cidade']->id,
             'idEstado' => $validacaoContato['estado']->id,
             'uf' => $validacaoContato['estado']->uf
         ];
 
-        $layout = RenderTemplate::getLayout('contato', $variaveisLayout);
-
-        return ['sucesso' => true, 'layout' => $layout, 'mensagem' => ''];
+        return ['sucesso' => true, 'contato' => $contato, 'mensagem' => ''];
     }
 
     /**

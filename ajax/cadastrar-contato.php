@@ -3,6 +3,7 @@
 require_once("../includes.php");
 
 use app\Model\Contato;
+use app\View\ContatoView;
 
 extract($_POST);
 
@@ -11,5 +12,11 @@ if(!strlen($nome) or !strlen($telefone) or !is_numeric($idCidade) or !is_numeric
     exit;
 }
 
-echo json_encode(Contato::cadastrarContato($nome, $telefone, $idCidade, $idEstado));
+$retorno = Contato::cadastrarContato($nome, $telefone, $idCidade, $idEstado);
+if ($retorno['sucesso']) {
+    $retorno['layout'] = ContatoView::renderContato($retorno['contato']);
+    unset($retorno['contato']);
+}
+
+echo json_encode($retorno);
 exit;

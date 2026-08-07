@@ -36,7 +36,7 @@ class RenderTemplate{
      * @param  array  $rawVariables Variáveis que contêm fragmentos HTML internos já renderizados
      */
     public static function getLayout($fileName, $variaveis = [], $rawVariables = []){
-        $template = file_get_contents(DIRINTERNO.'app/View/' . $fileName . '.php');
+        $template = file_get_contents(DIRINTERNO.'app/View/layout/' . $fileName . '.php');
 
         foreach($variaveis as $variavel => $valor){
             $view = '{{'.$variavel.'}}';

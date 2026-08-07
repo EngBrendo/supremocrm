@@ -4,6 +4,7 @@ require_once("../includes.php");
 
 use app\Model\Cidade;
 use app\Controller\ControllerDashboard;
+use app\View\CidadeView;
 
 extract($_POST);
 
@@ -19,7 +20,7 @@ if(strlen($uf) != 2){
 
 $cidades = Cidade::getCidadesPorUf($uf);
 
-$retorno = ControllerDashboard::getLayoutOptionCidades($cidades);
+$retorno = CidadeView::getLayoutOptionCidades($cidades);
 
 echo json_encode(['sucesso' => true, 'data' => $retorno], JSON_UNESCAPED_UNICODE);
 exit;

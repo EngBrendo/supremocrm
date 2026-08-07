@@ -3,6 +3,7 @@
 require_once("../includes.php");
 
 use app\Model\Contato;
+use app\View\ContatoView;
 
 extract($_POST);
 
@@ -11,5 +12,7 @@ if(!isset($busca) or !strlen($busca)){
     exit;
 }
 
-echo json_encode(['sucesso' => true, 'layout' => Contato::getContatosPorNome($busca)]);
+$contatos = Contato::getContatosPorNome($busca);
+
+echo json_encode(['sucesso' => true, 'layout' => ContatoView::renderList($contatos)]);
 exit;
