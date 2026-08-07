@@ -48,9 +48,8 @@ $('#modalEdicao').on('show.bs.modal', function() {
     $('#nomeEdicao').val(botao.dataset.nome);
     $('#telefoneEdicao').val(botao.dataset.telefone);
     $('#estadoEdicao').val(botao.dataset.estado);
-    buscarCidadesProUf(botao.dataset.uf, 'Edicao', true, botao.dataset.cidade);
+    buscarCidadesPorUf(botao.dataset.uf, 'Edicao', true, botao.dataset.cidade);
 });
-
 
 //editar um contato
 $('#editar').click(function() {
@@ -188,6 +187,18 @@ $('#btnBusca').click(function() {
     var busca = $('#busca').val();
     if(busca == '') return;
     
+    buscarContato(busca);
+});
+
+// enter na busca
+$(document).on("keydown", "#busca", function(){
+    if(event.key === "Enter" && event.target.value != '') {
+        event.preventDefault(); 
+        buscarContato(event.target.value);
+    }
+});
+
+function buscarContato(busca){
     jQuery.ajax({
         type     : "POST",
         data     : {
@@ -212,7 +223,7 @@ $('#btnBusca').click(function() {
             $('#btnRemoverBusca').css('display', 'flex');
         }
     });
-});
+}
 
 //deleta um contato
 $(document).on("click", ".delete i", function(){
@@ -278,12 +289,12 @@ $('.formEstado').on('change', function() {
     
     tipoForm = this.id == 'estadoCadastro' ? 'Cadastro' : 'Edicao';    
 
-    buscarCidadesProUf(selectedUF, tipoForm);
+    buscarCidadesPorUf(selectedUF, tipoForm);
 });
 
 
 // carrega as cidades pela UF
-function buscarCidadesProUf(uf, tipoForm, setarCidade = false, idCidade = null){
+function buscarCidadesPorUf(uf, tipoForm, setarCidade = false, idCidade = null){
     jQuery.ajax({
         type     : "POST",
         data     : {
