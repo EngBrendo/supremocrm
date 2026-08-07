@@ -1,12 +1,11 @@
 <div class="containerTopo">
-  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCadastro">
-    Novo cadastro
+  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCadastro" id="btnCadastrar">
+    Novo contato
   </button>
   <div class="containerBusca">
     <input type="text" placeholder="Busque um contato" id="busca" class="form-control"/>
     <button id="btnBusca" class="btn btn-primary" title="pesquisar" disabled>
       <i class="material-icons">search</i>
-      <div class="spinner-border"></div>
     </button>
   </div>
 </div>
@@ -19,7 +18,7 @@
         <th scope="col">Telefone</th>
         <th scope="col">Cidade</th>
         <th scope="col">Estado</th>
-        <th scope="col">Cadastro</th>
+        <th></th>
         <th></th>
       </tr>
     </thead>
@@ -35,34 +34,28 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Novo Cadastro</h5>
+        <h5 class="modal-title">Novo Contato</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
-      <div class="container-form-item">
-        <label for="nomeCadastro">Nome</label>
-        <input type="text" id="nomeCadastro" maxlength="255" class="form-control" placeholder="Digite o Nome"/>
-      </div>
-      <div class="container-form-item">
-        <label for="telefoneCadastro">Telefone</label>
-        <input type="tel" maxlength="15" id="telefoneCadastro" maxlength="255" class="form-control telefone" placeholder="Digite o Telefone"/>
-      </div>
-      <div class="container-form-item">
-        <label for="estadoCadastro">Estado</label>
-        <select id="estadoCadastro" class="form-control">
-          <option value="0" disabled selected>Selecione o Estado</option>
-          {{optionEstados}}
-        </select>
-      </div>
-      <div class="container-form-item">
-        <label for="cidadeCadastro">Cidade</label>
-        <select id="cidadeCadastro" class="form-control" disabled>
-          <option value="default" disabled>Selecione a Cidade</option>
-        </select>
-      </div>
-      </div>
+      {{formContatoCadastro}}
       <div class="modal-footer">
         <button type="button" class="btn btn-primary" id="cadastrar">Cadastrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Edição-->
+<div class="modal fade" id="modalEdicao">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar Contato</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      {{formContatoEdicao}}
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="editar">Editar</button>
       </div>
     </div>
   </div>

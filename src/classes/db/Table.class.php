@@ -147,4 +147,28 @@ class Table extends DBConnect{
     return $this->lastInsertId;
   }
 
+  /**
+   * Método responsável por criar a query de atualização (UPDATE)
+   * @method update
+   * @param  string $where Instrução WHERE do Delete
+   * @param  mixed  $dados Array ou Objeto (objeto deve possuir o método getAllAttributes do trait GetSet)
+   * @return boolean
+   */
+  public function update($where = null, $dados = null, $camposSemAspas = []){
+    if (!is_string($where) or !strlen($where)) return false;
+
+    if (is_object($dados)) {
+      if (!method_exists ($dados, 'getAllAttributes')) return false;
+      $dados = $dados->getAllAttributes(true);
+    }
+
+    $valores = [];
+    foreach($dados as $key => $value){
+      $valores[] = (in_array($key,$camposSemAspas)) ? ("`".$key."`= ".$value." ") : ("`".$key."`='".$value."'");
+    }
+    $valores = implode(',',$valores);
+    $query   = "UPDATE ".$this->table." SET ".$valores." WHERE ".$where;
+    return $this->execute($query);
+  }
+
 }

@@ -32,8 +32,83 @@ $('#modalCadastro').on('hidden.bs.modal', function() {
     $('#cadastrar').html('Cadastrar');
 });
 
+$('#btnCadastrar').click(function() {
+    limparForm();
+});
 
-//cadastrar um cidadão
+// modal de edição aberta
+$('#modalEdicao').on('show.bs.modal', function() {    
+    const botao = event.target;
+
+    $('#editar').data('id', botao.dataset.id);
+    $('#nomeEdicao').val(botao.dataset.nome);
+    $('#telefoneEdicao').val(botao.dataset.telefone);
+    $('#estadoEdicao').val(botao.dataset.estado);
+    buscarCidadesProUf(botao.dataset.uf, 'Edicao', true, botao.dataset.cidade);
+});
+
+
+//editar um contato
+$('#editar').click(function() {
+    var nome     = ($('#nomeEdicao').val()).trim();
+    var telefone = ($('#telefoneEdicao').val()).trim();
+    var estado   = ($('#estadoEdicao').val());
+    var cidade   = ($('#cidadeEdicao').val());
+    var id       = $('#editar').data('id');    
+
+    // validações do form
+    if(nome == '' || telefone == '' || estado == null || cidade == null) return;
+
+    jQuery.ajax({
+        type     : "POST",
+        data     : {
+            id: id,
+            nome: nome,
+            telefone: telefone,
+            idCidade: cidade,
+            idEstado: estado
+        },
+        url      : '/ajax/editar-contato.php',
+        dataType : "json",
+        success  : function(data){
+            $('#modalEdicao').modal('hide');
+
+            var titulo   = 'Erro na Edição!';
+            var mensagem = data.mensagem;
+
+            if(data.sucesso){
+                titulo   = 'Editado com sucesso!';
+                mensagem = 'Nome: '+nome+'<br>Telefone: <strong>'+telefone+'</strong>';
+
+                $('tr[data-id="'+id+'"]').replaceWith(data.layout);
+                limparForm();
+            }
+
+            $('#modalEdicao').modal('hide');
+
+            $('#modalMensagem .modal-title').html(titulo);
+            $('#modalMensagem .modal-body').html(mensagem);
+
+            $('#modalMensagem').modal('show');
+        },
+        error: function(data){
+            $('#editar').html('Editar');
+            alert('Um problema impediu a edição.');
+        },
+        beforeSend:function(data){
+            $('#loader').css('display', 'flex');
+            $('#editar').html('Editando...');
+            $('#modalMensagem .modal-footer').hide();
+        },
+        complete:function(data){
+            $('#editar').html('Editar');
+            $('#loader').hide();
+        }
+    });
+});
+
+
+//cadastrar um contato
 $('#cadastrar').click(function() {
     var nome     = ($('#nomeCadastro').val()).trim();
     var telefone = ($('#telefoneCadastro').val()).trim();
@@ -64,6 +139,7 @@ $('#cadastrar').click(function() {
                 mensagem = 'Nome: '+nome+'<br>Telefone: <strong>'+telefone+'</strong>';
 
                 inserirContatoTabela(data.layout);
+                limparForm();
             }
 
             $('#modalCadastro').modal('hide');
@@ -79,15 +155,31 @@ $('#cadastrar').click(function() {
             alert('Um problema impediu o cadastro.');
         },
         beforeSend:function(data){
+            $('#loader').css('display', 'flex');
             $('#cadastrar').html('Cadastrando...');
         },
         complete:function(data){
             $('#cadastrar').html('Cadastrar');
+            $('#loader').hide();
         }
     });
 });
 
-//busca um cidadão pelo nis
+
+// limpa o form
+function limparForm(){
+    $('#nomeCadastro').val('');
+    $('#telefoneCadastro').val('');
+    $('#estadoCadastro option:eq(0)').prop('selected', true);
+    $('#cidadeCadastro').empty();
+
+    $('#nomeEdicao').val('');
+    $('#telefoneEdicao').val('');
+    $('#estadoEdicao option:eq(0)').prop('selected', true);
+    $('#cidadeEdicao').empty();
+}
+
+//busca um contato pelo nis
 $('#btnBusca').click(function() {
     var nis = $('#nisBusca').val();
     if(nis.length != 11) return;
@@ -104,7 +196,6 @@ $('#btnBusca').click(function() {
 
             $('#modalMensagem .modal-title').html('Busca por NIS');
             $('#modalMensagem .modal-body').html(mensagem);
-            $('#modalMensagem .modal-footer').hide();
 
             $('#modalMensagem').modal('show');
         },
@@ -161,7 +252,7 @@ $(document).on("click", ".delete i", function(){
     });
 });
 
-// insere a linha com o cidadão cadastrado na tabela
+// insere a linha com o contato cadastrado na tabela
 function inserirContatoTabela(layout) {
     $('.emptyContatos').hide();
     $(".table tbody").prepend(layout);
@@ -182,22 +273,31 @@ function showAlert(mensagem, sucesso = true) {
     }, 2000);
 }
 
-$('#estadoCadastro').on('change', function() {
+$('.formEstado').on('change', function() {
     var selectedUF = $(this).find('option:selected').text();
     
     if(selectedUF == '' || selectedUF == undefined || selectedUF == null) return;
+    
+    tipoForm = this.id == 'estadoCadastro' ? 'Cadastro' : 'Edicao';    
 
+    buscarCidadesProUf(selectedUF, tipoForm);
+});
+
+
+// carrega as cidades pela UF
+function buscarCidadesProUf(uf, tipoForm, setarCidade = false, idCidade = null){
     jQuery.ajax({
         type     : "POST",
         data     : {
-            uf: selectedUF
+            uf: uf
         },
         url      : '/ajax/buscar-cidade-por-uf.php',
         dataType : "json",
         success  : function(data){            
             if(data.sucesso){                                
-                $('#cidadeCadastro').prop('disabled', false);
-                $('#cidadeCadastro').append(data.data);
+                $('#cidade'+tipoForm).prop('disabled', false);
+                $('#cidade'+tipoForm).append(data.data);
+                if(setarCidade) $('#cidade'+tipoForm).val(idCidade);
             }else{
                 alert(data.mensagem);
             }
@@ -207,10 +307,10 @@ $('#estadoCadastro').on('change', function() {
         },
         beforeSend:function(data){            
             $('#loader').css('display', 'flex');
-            $('#cidadeCadastro').empty();
+            $('#cidade'+tipoForm).empty();
         },
         complete:function(data){
             $('#loader').hide();
         }
     });
-});
+}

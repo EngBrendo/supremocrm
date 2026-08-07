@@ -69,12 +69,23 @@ class Contato {
      * @return array
      */
     public static function getContatos(){
-        $query = 'SELECT a.*, b.nome AS nomeCidade, c.nome AS nomeEstado  FROM contato a
+        $query = 'SELECT a.*, b.nome AS nomeCidade, b.uf, c.nome AS nomeEstado FROM contato a
                 INNER JOIN cidade b ON b.id = a.id_cidade
                 INNER JOIN estado c ON c.id = a.id_estado
                 ORDER BY a.nome ASC';
 
         return (new Table('contato'))->query($query)->fetchAll(PDO::FETCH_CLASS, self::class);
+    }
+
+    /**
+     * Busca um contato pelo ID
+     * @method getContato
+     * @param int $id
+     * @return Contato|false
+     */
+    public static function getContato($id){
+        if(!is_numeric($id)) return false;
+        return (new Table('contato'))->select('id = '.$id)->fetchObject(self::class);
     }
 
 
@@ -105,8 +116,48 @@ class Contato {
             'nome' => $nome,
             'telefone' => $telefone,
             'cidade' => $validacaoContato['cidade']->nome,
-            'estado' => $validacaoContato['estado']->nome, 
-            'dataCadastro' => date("d-m-Y H:m:s", time())
+            'estado' => $validacaoContato['estado']->nome,
+            'idCidade' => $validacaoContato['cidade']->id,
+            'idEstado' => $validacaoContato['estado']->id,
+            'uf' => $validacaoContato['estado']->uf
+        ];
+
+        $layout = RenderTemplate::getLayout('contato', $variaveisLayout);
+
+        return ['sucesso' => true, 'layout' => $layout, 'mensagem' => ''];
+    }
+
+    /**
+     * Edita um contato
+     * @method editarContato
+     * @return array
+     */
+    public static function editarContato($idContato, $nome, $telefone, $idCidade, $idEstado){
+        $telefoneSemMascara = preg_replace("/[^0-9]/", "", trim($telefone));
+
+        $validacaoContato = self::validarDadosContato($nome, $telefoneSemMascara, $idCidade, $idEstado, $idContato);
+        if(!$validacaoContato['sucesso']) return $validacaoContato;
+
+        $dadosCadastro = [
+            'nome' => $nome,
+            'telefone' => $telefoneSemMascara,
+            'id_cidade' => $idCidade,
+            'id_estado' => $idEstado
+        ];
+
+        $obTabela = new Table('contato');
+
+        if(!($obTabela)->update('id = '.$idContato, $dadosCadastro)) return ['sucesso' => false, 'mensagem' => 'Erro na edição das informações.'];
+
+        $variaveisLayout = [
+            'id' => $idContato,
+            'nome' => $nome,
+            'telefone' => $telefone,
+            'cidade' => $validacaoContato['cidade']->nome,
+            'estado' => $validacaoContato['estado']->nome,
+            'idCidade' => $validacaoContato['cidade']->id,
+            'idEstado' => $validacaoContato['estado']->id,
+            'uf' => $validacaoContato['estado']->uf
         ];
 
         $layout = RenderTemplate::getLayout('contato', $variaveisLayout);
@@ -117,17 +168,25 @@ class Contato {
     /**
      * Deleta um contato do banco
      * @method validarDadosContato
-     * @param int $idContato
      * @return array
      */
-    public static function validarDadosContato(&$nome, &$telefone, $idCidade, $idEstado){
+    public static function validarDadosContato(&$nome, &$telefone, $idCidade, $idEstado, $idContato = null){
         if(!strlen($nome) or !strlen($telefone) or !is_numeric($idCidade) or !is_numeric($idEstado)) return ['sucesso' => false, 'mensagem' => 'Dados inválidos.'];
 
         $nome = trim($nome);
         if(!preg_match("/^[a-zA-Zà-úÀ-Ú\s]+$/", $nome)) return ['sucesso' => false, 'mensagem' => 'O nome possui caracteres inválidos.'];
 
+        // condição para permitir edição do contato, mantendo o mesmo telefone
+        $condicaoEdicao = '';
+
+        if(is_numeric($idContato)){
+            $contato = Contato::getContato($idContato);
+            if(!($contato instanceof Contato)) return ['sucesso' => false, 'mensagem' => 'Contato não encontrado nos registros.'];
+            $condicaoEdicao = ' AND id != '.$idContato;
+        }
+
         // valida duplicação do telefone
-        if((new Table('contato'))->select('telefone = "'.$telefone.'"')->rowCount() > 0) return ['sucesso' => false, 'mensagem' => 'Telefone já cadastrado.'];
+        if((new Table('contato'))->select('telefone = "'.$telefone.'"'.$condicaoEdicao)->rowCount() > 0) return ['sucesso' => false, 'mensagem' => 'Telefone já cadastrado.'];
 
         $cidade = Cidade::getCidade($idCidade);
         if(! ($cidade instanceof Cidade)) return ['sucesso' => false, 'mensagem' => 'Cidade não encontrada nos registros.'];

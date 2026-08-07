@@ -16,11 +16,17 @@ class ControllerDashboard{
     public function __construct(){
         $contatos = Contato::getContatos();
 
-        $variaveisLayout['contatos']    = $this->getLayoutContatos($contatos);
-        $variaveisLayout['tableHidden'] = empty($contatos) ? 'visible' : '';
-
         $estados = Estado::getEstados();
         $variaveisLayout['optionEstados'] = $this->getLayoutOtionEstados($estados);
+
+        $variaveisLayout['tipoAcao']            = 'Cadastro';
+        $variaveisLayout['formContatoCadastro'] = RenderTemplate::getLayout('form-contato', $variaveisLayout);
+
+        $variaveisLayout['tipoAcao']          = 'Edicao';
+        $variaveisLayout['formContatoEdicao'] = RenderTemplate::getLayout('form-contato', $variaveisLayout);
+
+        $variaveisLayout['contatos']    = $this->getLayoutContatos($contatos);
+        $variaveisLayout['tableHidden'] = empty($contatos) ? 'visible' : '';
 
         //carrega o conteúdo que será aplicado ao template
         $variaveisTemplate['conteudo'] = RenderTemplate::getLayout('dashboard', $variaveisLayout);
@@ -76,8 +82,10 @@ class ControllerDashboard{
                 'nome' => $value->nome, 
                 'telefone' => Utils::formatarTelefone($value->telefone),
                 'cidade' => $value->nomeCidade, 
-                'estado' => $value->nomeEstado, 
-                'dataCadastro' => date("d-m-Y", strtotime($value->dataCadastro))
+                'estado' => $value->nomeEstado,
+                'idEstado' => $value->idEstado,
+                'idCidade' => $value->idCidade,
+                'uf' => $value->uf
             ];
 
             $retorno .= RenderTemplate::getLayout('contato', $dadosLayout);

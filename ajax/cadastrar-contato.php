@@ -11,5 +11,5 @@ if(!strlen($nome) or !strlen($telefone) or !is_numeric($idCidade) or !is_numeric
     exit;
 }
 
-echo json_encode((new Contato)->cadastrarContato($nome, $telefone, $idCidade, $idEstado));
+echo json_encode(Contato::cadastrarContato($nome, $telefone, $idCidade, $idEstado));
 exit;
