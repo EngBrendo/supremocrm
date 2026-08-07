@@ -5,7 +5,7 @@
     </div>
     <div class="container-form-item">
         <label for="telefone{{tipoAcao}}">Telefone</label>
-        <input type="tel" maxlength="15" id="telefone{{tipoAcao}}" maxlength="255" class="form-control telefone" placeholder="Digite o Telefone"/>
+        <input type="tel" maxlength="15" id="telefone{{tipoAcao}}" class="form-control telefone" placeholder="Digite o Telefone"/>
     </div>
     <div class="container-form-item">
         <label for="estado{{tipoAcao}}">Estado</label>

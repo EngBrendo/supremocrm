@@ -5,7 +5,7 @@
     <td>{{estado}}</td>
     <td>
         <div class="edit">
-            <i class="material-icons" id="editContato" data-bs-toggle="modal" data-bs-target="#modalEdicao" title="editar" data-id="{{id}}" data-estado="{{idEstado}}" data-cidade="{{idCidade}}" data-nome="{{nome}}" data-telefone="{{telefone}}" data-uf="{{uf}}">edit</i>
+            <i class="material-icons editContato" data-bs-toggle="modal" data-bs-target="#modalEdicao" title="editar" data-id="{{id}}" data-estado="{{idEstado}}" data-cidade="{{idCidade}}" data-nome="{{nome}}" data-telefone="{{telefone}}" data-uf="{{uf}}">edit</i>
         </div>
     </td>
     <td>
