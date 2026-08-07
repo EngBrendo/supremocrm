@@ -86,7 +86,7 @@ class Contato {
      */
     public static function getContato($id){
         if(!is_numeric($id)) return false;
-        return (new Table('contato'))->select('id = '.$id)->fetchObject(self::class);
+        return (new Table('contato'))->select('id = :id', ['id' => $id])->fetchObject(self::class);
     }
 
     /**
@@ -101,10 +101,10 @@ class Contato {
         $query = 'SELECT a.*, b.nome AS nomeCidade, b.uf, c.nome AS nomeEstado FROM contato a
                 INNER JOIN cidade b ON b.id = a.id_cidade
                 INNER JOIN estado c ON c.id = a.id_estado
-                WHERE a.nome like "%'.$nome.'%" 
+                WHERE a.nome LIKE :nome
                 ORDER BY a.nome ASC';
 
-        $contatos = (new Table('contato'))->query($query)->fetchAll(PDO::FETCH_CLASS, self::class);
+        $contatos = (new Table('contato'))->query($query, ['nome' => '%'.$nome.'%'])->fetchAll(PDO::FETCH_CLASS, self::class);
 
         $retorno = '';
 
@@ -185,7 +185,7 @@ class Contato {
 
         $obTabela = new Table('contato');
 
-        if(!($obTabela)->update('id = '.$idContato, $dadosCadastro)) return ['sucesso' => false, 'mensagem' => 'Erro na edição das informações.'];
+        if(!($obTabela)->update('id = :id', $dadosCadastro, ['id' => $idContato])) return ['sucesso' => false, 'mensagem' => 'Erro na edição das informações.'];
 
         $variaveisLayout = [
             'id' => $idContato,
@@ -215,16 +215,18 @@ class Contato {
         if(!preg_match("/^[a-zA-Zà-úÀ-Ú\s]+$/", $nome)) return ['sucesso' => false, 'mensagem' => 'O nome possui caracteres inválidos.'];
 
         // condição para permitir edição do contato, mantendo o mesmo telefone
+        $paramsTelefone = ['telefone' => $telefone];
         $condicaoEdicao = '';
 
         if(is_numeric($idContato)){
             $contato = Contato::getContato($idContato);
             if(!($contato instanceof Contato)) return ['sucesso' => false, 'mensagem' => 'Contato não encontrado nos registros.'];
-            $condicaoEdicao = ' AND id != '.$idContato;
+            $condicaoEdicao = ' AND id != :idContato';
+            $paramsTelefone['idContato'] = $idContato;
         }
 
         // valida duplicação do telefone
-        if((new Table('contato'))->select('telefone = "'.$telefone.'"'.$condicaoEdicao)->rowCount() > 0) return ['sucesso' => false, 'mensagem' => 'Telefone já cadastrado.'];
+        if((new Table('contato'))->select('telefone = :telefone'.$condicaoEdicao, $paramsTelefone)->rowCount() > 0) return ['sucesso' => false, 'mensagem' => 'Telefone já cadastrado.'];
 
         $cidade = Cidade::getCidade($idCidade);
         if(! ($cidade instanceof Cidade)) return ['sucesso' => false, 'mensagem' => 'Cidade não encontrada nos registros.'];
@@ -243,7 +245,7 @@ class Contato {
      */
     public static function deletarContato($idContato){
         if(!is_numeric($idContato)) return false;
-        return (new Table('contato'))->delete('id = '.$idContato);
+        return (new Table('contato'))->delete('id = :id', ['id' => $idContato]);
     }
 
 }

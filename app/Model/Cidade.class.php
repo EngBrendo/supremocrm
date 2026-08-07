@@ -57,7 +57,7 @@ class Cidade {
      */
     public static function getCidade($id){
         if(!is_numeric($id)) return false;
-        return (new Table('cidade'))->select('id = '.$id)->fetchObject(self::class);
+        return (new Table('cidade'))->select('id = :id', ['id' => $id])->fetchObject(self::class);
     }
 
     /**
@@ -68,18 +68,28 @@ class Cidade {
      */
     public static function getCidadesPorUf($uf){
         if(!strlen($uf)) return [];
-        return (new Table('cidade'))->select('uf = "'.$uf.'"', 'nome ASC')->fetchAll(PDO::FETCH_CLASS, self::class);
+        return (new Table('cidade'))->select('uf = :uf', ['uf' => $uf], 'nome ASC')->fetchAll(PDO::FETCH_CLASS, self::class);
     }
 
     /**
      * Busca cidades por condição
      * @method getCidadesPorCondicao
-     * @param string $condicao
+     * @param array $condicoes Pares coluna => valor permitidos para filtrar a consulta
      * @return array
      */
-    public static function getCidadesPorCondicao($condicao){
-        if(!strlen($condicao)) return [];
-        return (new Table('cidade'))->select($condicao)->fetchAll(PDO::FETCH_CLASS, self::class);
+    public static function getCidadesPorCondicao(array $condicoes){
+        if(empty($condicoes)) return [];
+
+        $camposPermitidos = ['id', 'nome', 'codigo', 'uf'];
+        $where = [];
+        $params = [];
+        foreach ($condicoes as $campo => $valor) {
+            if (!in_array($campo, $camposPermitidos, true)) return [];
+            $where[] = '`'.$campo.'` = :'.$campo;
+            $params[$campo] = $valor;
+        }
+
+        return (new Table('cidade'))->select(implode(' AND ', $where), $params)->fetchAll(PDO::FETCH_CLASS, self::class);
     }
 
 }

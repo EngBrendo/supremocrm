@@ -64,7 +64,7 @@ class Estado {
      */
     public static function getEstado($id){
         if(!is_numeric($id)) return false;
-        return (new Table('estado'))->select('id = '.$id)->fetchObject(self::class);
+        return (new Table('estado'))->select('id = :id', ['id' => $id])->fetchObject(self::class);
     }
 
 
@@ -74,7 +74,7 @@ class Estado {
      * @return array
      */
     public static function getEstados(){
-        return (new Table('estado'))->select(null, 'uf ASC')->fetchAll(PDO::FETCH_CLASS, self::class);
+        return (new Table('estado'))->select(null, [], 'uf ASC')->fetchAll(PDO::FETCH_CLASS, self::class);
     }
 
 }

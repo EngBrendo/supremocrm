@@ -44,7 +44,7 @@ class Table extends DBConnect{
      * @method execute
      * @param  string $query Query que será executada
      */
-    public function execute($query){
+    public function execute($query, $params = []){
         self::$conexao = $this->getConnection();
 
         $result = null;
@@ -52,10 +52,11 @@ class Table extends DBConnect{
         if(self::$conexao == null) return $result;
 
         try {
-            $result = self::$conexao->prepare($query)->execute();
+            $statement = self::$conexao->prepare($query);
+            $result = $statement->execute($params);
             $this->lastInsertId = self::$conexao->lastInsertId();
         }catch (Exception $e) {
-            self::$conexao->rollBack();
+            $result = false;
         }
 
         //FECHA A CONEXÃO
@@ -69,7 +70,7 @@ class Table extends DBConnect{
      * @method query
      * @param  string $query Query que será executada
      */
-    public function query($query){
+    public function query($query, $params = []){
         self::$conexao = $this->getConnection();
 
         $result = null;
@@ -77,9 +78,10 @@ class Table extends DBConnect{
         if(self::$conexao == null) return $result;
 
         try {
-            $result = self::$conexao->query($query);
+            $result = self::$conexao->prepare($query);
+            $result->execute($params);
         }catch (Exception $e) {
-            self::$conexao->rollBack();
+            $result = false;
         }
 
         //FECHA A CONEXÃO
@@ -95,17 +97,25 @@ class Table extends DBConnect{
      * @return boolean
      */
     public function insert($dados){
-        $valores = [];
-        foreach (array_values($dados) as $value) {
-            $valores[] = "'".$value."'";
+        if (empty($dados)) return false;
+
+        $campos = array_keys($dados);
+        foreach ($campos as $campo) {
+            if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $campo)) return false;
         }
 
-        $campos  = implode('`,`', array_keys($dados));
-        $valores = implode(",", $valores);
-        
-        $query = "INSERT INTO ".$this->table." (`".$campos."`) VALUES (".$valores.")";
+        $camposSql = '`'.implode('`,`', $campos).'`';
+        $placeholders = [];
+        $params = [];
+        foreach ($dados as $campo => $valor) {
+            $placeholder = ':insert_'.$campo;
+            $placeholders[] = $placeholder;
+            $params['insert_'.$campo] = $valor;
+        }
 
-        return $this->execute($query);
+        $query = "INSERT INTO `".$this->table."` (".$camposSql.") VALUES (".implode(',', $placeholders).")";
+
+        return $this->execute($query, $params);
     }
 
     /**
@@ -113,15 +123,16 @@ class Table extends DBConnect{
      *
      * @method select
      * @param  string $where cláusula WHERE do SQL
+     * @param  array $params Valores nomeados usados na cláusula WHERE
      * @param  string $order cláusula ODER BY do SQL
      * @return PDOStatement
      */
-    public function select($where = null, $order = null){
+    public function select($where = null, $params = [], $order = null){
         $where = strlen($where) ? (" WHERE " . $where) : '';
         $order = strlen($order) ? (" ORDER BY " . $order) : '';
-        $query = "SELECT * FROM " . $this->table . $where . $order;
+        $query = "SELECT * FROM `" . $this->table . '`' . $where . $order;
 
-        return $this->query($query);
+        return $this->query($query, $params);
     }
 
   /**
@@ -130,12 +141,12 @@ class Table extends DBConnect{
    * @param  string $where Instrução WHERE do Delete
    * @return boolean
    */
-  public function delete($where = null){
+  public function delete($where = null, $params = []){
     if(!is_string($where) or !strlen($where)) return false;
 
-    $query = "DELETE FROM ".$this->table." WHERE ".$where;
-    
-    return $this->execute($query);
+    $query = "DELETE FROM `".$this->table."` WHERE ".$where;
+
+    return $this->execute($query, $params);
   }
 
   /**
@@ -152,9 +163,10 @@ class Table extends DBConnect{
    * @method update
    * @param  string $where Instrução WHERE do Delete
    * @param  mixed  $dados Array ou Objeto (objeto deve possuir o método getAllAttributes do trait GetSet)
+   * @param  array  $whereParams Valores nomeados usados na cláusula WHERE
    * @return boolean
    */
-  public function update($where = null, $dados = null, $camposSemAspas = []){
+  public function update($where = null, $dados = null, $whereParams = []){
     if (!is_string($where) or !strlen($where)) return false;
 
     if (is_object($dados)) {
@@ -162,13 +174,19 @@ class Table extends DBConnect{
       $dados = $dados->getAllAttributes(true);
     }
 
+    if (!is_array($dados) || empty($dados)) return false;
+
     $valores = [];
+    $params = $whereParams;
     foreach($dados as $key => $value){
-      $valores[] = (in_array($key,$camposSemAspas)) ? ("`".$key."`= ".$value." ") : ("`".$key."`='".$value."'");
+      if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $key)) return false;
+      $paramName = 'update_'.$key;
+      $valores[] = "`".$key."` = :".$paramName;
+      $params[$paramName] = $value;
     }
     $valores = implode(',',$valores);
-    $query   = "UPDATE ".$this->table." SET ".$valores." WHERE ".$where;
-    return $this->execute($query);
+    $query   = "UPDATE `".$this->table."` SET ".$valores." WHERE ".$where;
+    return $this->execute($query, $params);
   }
 
 }
