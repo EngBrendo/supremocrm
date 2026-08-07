@@ -1,4 +1,4 @@
-<tr data-id="{{id}}">
+<tr data-id="{{id}}" class="itemLista">
     <td>{{nome}}</td>
     <td>{{telefone}}</td>
     <td>{{cidade}}</td>

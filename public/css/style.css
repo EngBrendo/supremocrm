@@ -111,9 +111,23 @@ body{
 }
 
 .containerBusca .btn{
-    display: flex;
     margin-left: 8px;
     align-items: center;
+}
+
+.containerBusca .btn-primary{
+    display: flex;
+}
+
+.btn-remove{
+    background-color: #d10f0f;
+    color: #fff;
+    display: none;
+}
+
+.btn-remove:hover{
+    color: #fff;
+    background-color: #750909;
 }
 
 #cadastrar{

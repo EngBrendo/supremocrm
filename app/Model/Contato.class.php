@@ -6,6 +6,7 @@ use src\classes\db\Table;
 use src\traits\GetSet;
 use PDO;
 use src\classes\mvc\RenderTemplate;
+use src\classes\utils\Utils;
 
 class Contato {
 
@@ -86,6 +87,43 @@ class Contato {
     public static function getContato($id){
         if(!is_numeric($id)) return false;
         return (new Table('contato'))->select('id = '.$id)->fetchObject(self::class);
+    }
+
+    /**
+     * Busca contatos pelo nome
+     * @method getContatosPorNome
+     * @param string $nome
+     * @return string
+     */
+    public static function getContatosPorNome($nome){
+        if(!strlen($nome)) return '';
+
+        $query = 'SELECT a.*, b.nome AS nomeCidade, b.uf, c.nome AS nomeEstado FROM contato a
+                INNER JOIN cidade b ON b.id = a.id_cidade
+                INNER JOIN estado c ON c.id = a.id_estado
+                WHERE a.nome like "%'.$nome.'%" 
+                ORDER BY a.nome ASC';
+
+        $contatos = (new Table('contato'))->query($query)->fetchAll(PDO::FETCH_CLASS, self::class);
+
+        $retorno = '';
+
+        foreach ($contatos as $key => $value) {
+            $variaveisLayout = [
+                'id' => $value->id,
+                'nome' => $value->nome,
+                'telefone' => Utils::formatarTelefone($value->telefone),
+                'cidade' => $value->nomeCidade,
+                'estado' => $value->nomeEstado,
+                'idCidade' => $value->idCidade,
+                'idEstado' => $value->idEstado,
+                'uf' => $value->uf
+            ];
+
+            $retorno .= RenderTemplate::getLayout('contato', $variaveisLayout);
+        }
+
+        return $retorno;
     }
 
 

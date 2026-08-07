@@ -36,6 +36,10 @@ $('#btnCadastrar').click(function() {
     limparForm();
 });
 
+$('#btnRemoverBusca').click(function() {
+    window.location.reload();
+});
+
 // modal de edição aberta
 $('#modalEdicao').on('show.bs.modal', function() {    
     const botao = event.target;
@@ -179,39 +183,33 @@ function limparForm(){
     $('#cidadeEdicao').empty();
 }
 
-//busca um contato pelo nis
+//busca um contato pelo nome
 $('#btnBusca').click(function() {
-    var nis = $('#nisBusca').val();
-    if(nis.length != 11) return;
+    var busca = $('#busca').val();
+    if(busca == '') return;
     
     jQuery.ajax({
         type     : "POST",
         data     : {
-            nis: nis
+            busca: busca
         },
         url      : '/ajax/buscar-contato.php',
         dataType : "json",
         success  : function(data){
-            var mensagem = data.sucesso ? 'Nome: '+data.nome+'<br>NIS: <strong>'+nis+'</strong>' : data.mensagem;
-
-            $('#modalMensagem .modal-title').html('Busca por NIS');
-            $('#modalMensagem .modal-body').html(mensagem);
-
-            $('#modalMensagem').modal('show');
+            if(data.sucesso){
+                $('.itemLista').remove();
+                $('.ContainerTable tbody').append(data.layout);
+            }
         },
         error: function(data){
-            $('#btnBusca').prop("disabled", false);
             alert('Um problema impediu a busca.');
         },
         beforeSend:function(data){
-            $('#btnBusca').prop("disabled", true);
-            $('#btnBusca i').hide();
-            $('#btnBusca .spinner-border').show();
+            $('#loader').css('display', 'flex');
         },
         complete:function(data){
-            $('#btnBusca').prop("disabled", false);
-            $('#btnBusca i').show();
-            $('#btnBusca .spinner-border').hide();
+            $('#loader').hide();
+            $('#btnRemoverBusca').css('display', 'flex');
         }
     });
 });

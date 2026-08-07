@@ -4,7 +4,10 @@
   </button>
   <div class="containerBusca">
     <input type="text" placeholder="Busque um contato" id="busca" class="form-control"/>
-    <button id="btnBusca" class="btn btn-primary" title="pesquisar" disabled>
+    <button id="btnRemoverBusca" class="btn-remove btn" title="remover busca">
+      <i class="material-icons">close</i>
+    </button>
+    <button id="btnBusca" class="btn btn-primary" title="pesquisar">
       <i class="material-icons">search</i>
     </button>
   </div>
