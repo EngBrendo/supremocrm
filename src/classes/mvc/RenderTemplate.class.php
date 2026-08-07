@@ -2,6 +2,8 @@
 
 namespace src\classes\mvc;
 
+use src\classes\security\Csrf;
+
 /**
  * classe para 'renderizar' o template de acordo com a view correspondente
  */
@@ -21,7 +23,8 @@ class RenderTemplate{
             'jsPath'   => DIRURL . "public/js/script.js",
             'logoPath' => DIRIMGPUBROOT . "logo.png",
             'siteUrl'  => DIRURL.'dashboard',
-            'ano'      => date("Y")
+            'ano'      => date("Y"),
+            'csrfToken' => Csrf::token()
         ];
 
         echo self::getLayout('template', $variaveisTemplate, ['conteudo']);

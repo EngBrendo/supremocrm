@@ -20,6 +20,8 @@ function mascaraTelefone(valor) {
   return valor;
 }
 
+const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
+
 // Aplica em todos os campos com classe "telefone"
 document.querySelectorAll('.telefone').forEach(campo => {    
   campo.addEventListener('input', e => {
@@ -64,6 +66,7 @@ $('#editar').click(function() {
 
     jQuery.ajax({
         type     : "POST",
+        headers  : { 'X-CSRF-Token': csrfToken },
         data     : {
             id: id,
             nome: nome,
@@ -123,6 +126,7 @@ $('#cadastrar').click(function() {
 
     jQuery.ajax({
         type     : "POST",
+        headers  : { 'X-CSRF-Token': csrfToken },
         data     : {
             nome: nome,
             telefone: telefone,
@@ -232,6 +236,7 @@ $(document).on("click", ".delete i", function(){
 
     jQuery.ajax({
         type     : "POST",
+        headers  : { 'X-CSRF-Token': csrfToken },
         data     : {
             idContato: idContato
         },
