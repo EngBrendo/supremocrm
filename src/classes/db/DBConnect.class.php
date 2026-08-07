@@ -12,9 +12,8 @@ class DBConnect{
 
     protected function getConnection(){
         try{
-            return new PDO('mysql:host='.HOST.';dbname='.DB, USER, PASS);
+            return new PDO('mysql:host='.HOST.';dbname='.DB.';charset=utf8mb4', USER, PASS);
         }catch(PDOException $e){
-            echo '<pre>'; print_r($e); echo '</pre>'; exit;
             return null;
         }
     }

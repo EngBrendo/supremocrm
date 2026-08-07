@@ -1,0 +1,188 @@
+html, body{
+    height: 100%;
+}
+
+body{
+    padding-bottom: 40px;
+}
+
+.conteudo{
+    padding: 30px;
+    max-width: 1000px;
+    margin: auto;
+    height: calc(100% - 80px);
+}
+
+.ContainerTable{
+    overflow-y: scroll;
+    max-height: calc(100% - 100px);
+}
+
+.table{
+    margin: auto;
+    border: 1px solid #cecece;
+    text-align: center;
+}
+
+.table th{
+    width: 20%;
+}
+
+.table td{
+    vertical-align: middle;
+}
+
+.table th:first-child{
+    width: 20%;
+}
+
+.table th:last-child{
+    width: 10%;
+}
+
+.emptyContatos{
+    display: none;
+}
+
+.emptyContatos.visible{
+    display: table-row;
+}
+
+.containerTopo{
+    display: flex;
+    margin-bottom: 40px;
+    margin-top: 30px;
+}
+
+.containerBusca{
+    display: flex;
+    margin-left: auto;
+}
+
+.containerBusca .spinner-border{
+    width: 24px;
+    height: 24px;
+    display: none;
+}
+
+.container-form-item{
+    margin-bottom: 15px;
+}
+
+#busca{
+    width: 300px;
+}
+
+.delete{
+    display: flex;
+    justify-content: center;
+}
+
+.delete i{
+    cursor: pointer;
+    color: #012553;
+}
+
+.delete i:hover{
+    color: #c30000
+}
+
+.delete .spinner-border{
+    width: 24px;
+    height: 24px;
+    display: none;
+}
+
+.btn-primary{
+    background-color: #044BA8;
+    color: #fff;
+}
+
+.btn-primary:hover{
+    color: #fff;
+    background-color: #012553;
+}
+
+#nisBusca{
+    max-width: 200px;
+    margin-left: 10px;
+}
+
+.containerBusca .btn{
+    display: flex;
+    margin-left: 8px;
+    align-items: center;
+}
+
+#cadastrar{
+    width: 132px;
+}
+
+#limpar{
+    align-self: center;
+    margin-left: 8px;
+    cursor: pointer;
+}
+
+#limpar:hover{
+    color: #044BA8;
+}
+
+.navbar{
+    min-height: 60px;
+    background-color: #362e71;
+    border-radius: 0;
+    padding-left: 20px;
+}
+
+.navbar.brand{
+    height: auto;
+    max-width: 200px;
+}
+
+.navbar .brand img{
+    max-width: 200px;;
+}
+
+footer{
+    background-color: #F6F6F6;
+}
+
+.containerAlert{
+    position: absolute;
+    right: 30px;
+    bottom: 70px;
+}
+
+.containerAlert .alert{
+    display: none;
+}
+
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255,255,255,0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+#loader{
+    display: none;
+}
+
+.loader {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #e0e0e0;
+  border-top: 5px solid #007bff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
