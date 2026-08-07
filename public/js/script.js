@@ -301,7 +301,7 @@ function buscarCidadesProUf(uf, tipoForm, setarCidade = false, idCidade = null){
             }
         },
         error: function(data){
-            alert('Um problema impediu a exclusão.');
+            alert('Um problema impediu a busca.');
         },
         beforeSend:function(data){            
             $('#loader').css('display', 'flex');
