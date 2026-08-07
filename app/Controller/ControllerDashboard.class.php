@@ -20,16 +20,20 @@ class ControllerDashboard{
         $variaveisLayout['optionEstados'] = $this->getLayoutOtionEstados($estados);
 
         $variaveisLayout['tipoAcao']            = 'Cadastro';
-        $variaveisLayout['formContatoCadastro'] = RenderTemplate::getLayout('form-contato', $variaveisLayout);
+        $variaveisLayout['formContatoCadastro'] = RenderTemplate::getLayout('form-contato', $variaveisLayout, ['optionEstados']);
 
         $variaveisLayout['tipoAcao']          = 'Edicao';
-        $variaveisLayout['formContatoEdicao'] = RenderTemplate::getLayout('form-contato', $variaveisLayout);
+        $variaveisLayout['formContatoEdicao'] = RenderTemplate::getLayout('form-contato', $variaveisLayout, ['optionEstados']);
 
         $variaveisLayout['contatos']    = $this->getLayoutContatos($contatos);
         $variaveisLayout['tableHidden'] = empty($contatos) ? 'visible' : '';
 
         //carrega o conteúdo que será aplicado ao template
-        $variaveisTemplate['conteudo'] = RenderTemplate::getLayout('dashboard', $variaveisLayout);
+        $variaveisTemplate['conteudo'] = RenderTemplate::getLayout(
+            'dashboard',
+            $variaveisLayout,
+            ['formContatoCadastro', 'formContatoEdicao', 'contatos']
+        );
 
         RenderTemplate::setTemplate($variaveisTemplate);
     }

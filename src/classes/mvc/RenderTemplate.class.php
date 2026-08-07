@@ -24,7 +24,7 @@ class RenderTemplate{
             'ano'      => date("Y")
         ];
 
-        echo self::getLayout('template', $variaveisTemplate);
+        echo self::getLayout('template', $variaveisTemplate, ['conteudo']);
     }
 
     /**
@@ -33,13 +33,17 @@ class RenderTemplate{
      * @method getLayout
      * @param  string $fileName   nome do arquivo de layout
      * @param  array  $variaveis  variaveis que serão inseridas no layout
+     * @param  array  $rawVariables Variáveis que contêm fragmentos HTML internos já renderizados
      */
-    public static function getLayout($fileName, $variaveis = []){
+    public static function getLayout($fileName, $variaveis = [], $rawVariables = []){
         $template = file_get_contents(DIRINTERNO.'app/View/' . $fileName . '.php');
 
         foreach($variaveis as $variavel => $valor){
             $view = '{{'.$variavel.'}}';
             if(is_array($valor)) continue;
+            $valor = in_array($variavel, $rawVariables, true)
+                ? (string) $valor
+                : htmlspecialchars((string) $valor, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
             $template = str_replace($view, $valor, $template);
         }
 
