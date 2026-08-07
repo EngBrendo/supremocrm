@@ -49,7 +49,7 @@ $('#cadastrar').click(function() {
         data     : {
             nome: nome
         },
-        url      : '/ajax/cadastrar-cidadao.php',
+        url      : '/ajax/cadastrar-contato.php',
         dataType : "json",
         success  : function(data){
             $('#modalCadastro').modal('hide');
@@ -61,7 +61,7 @@ $('#cadastrar').click(function() {
                 titulo   = 'Cadastrado com sucesso!';
                 mensagem = 'Nome: '+nome+'<br>NIS: <strong>'+data.nis+'</strong>';
 
-                inserirCidadaoTabela(data.layout);
+                inserirContatoTabela(data.layout);
             }
 
             $('#modalCadastro').modal('hide');
@@ -95,7 +95,7 @@ $('#btnBusca').click(function() {
         data     : {
             nis: nis
         },
-        url      : '/ajax/buscar-cidadao.php',
+        url      : '/ajax/buscar-contato.php',
         dataType : "json",
         success  : function(data){
             var mensagem = data.sucesso ? 'Nome: '+data.nome+'<br>NIS: <strong>'+nis+'</strong>' : data.mensagem;
@@ -123,52 +123,45 @@ $('#btnBusca').click(function() {
     });
 });
 
-//deleta um cidadão
+//deleta um contato
 $(document).on("click", ".delete i", function(){
-    var nis = this.dataset.nis;
-    if(nis.length != 11) return;
-
-    var icon   = this;
-    var loader = $(this.parentNode.parentNode).find('.spinner-border')[0];
-    var row    = this.parentNode.parentNode.parentNode;
+    var idContato = this.dataset.id;
+    var row       = $(this).closest('tr');
 
     jQuery.ajax({
         type     : "POST",
         data     : {
-            nis: nis
+            idContato: idContato
         },
-        url      : '/ajax/deletar-cidadao.php',
+        url      : '/ajax/deletar-contato.php',
         dataType : "json",
         success  : function(data){
             var mensagem = data.mensagem;
 
             if(data.sucesso){
-                mensagem = 'NIS '+nis+' excluído com sucesso!';
+                mensagem = 'Contato excluído com sucesso!';
                 row.remove();
-                if(($('.table tbody tr').length == 1)) $('.emptyCidadaos').show();
+                if(($('.table tbody tr').length == 1)) $('.emptyContatos').show();
             }
 
             showAlert(mensagem, data.sucesso);
         },
         error: function(data){
-            $(icon).show();
-            $(loader).hide();
+            $('#loader').hide();
             alert('Um problema impediu a exclusão.');
         },
         beforeSend:function(data){
-            $(icon).hide();
-            $(loader).show();
+            $('#loader').css('display', 'flex');
         },
         complete:function(data){
-            $(icon).show();
-            $(loader).hide();
+            $('#loader').hide();
         }
     });
 });
 
 // insere a linha com o cidadão cadastrado na tabela
-function inserirCidadaoTabela(layout) {
-    $('.emptyCidadaos').hide();
+function inserirContatoTabela(layout) {
+    $('.emptyContatos').hide();
     $(".table tbody").prepend(layout);
 }
 
@@ -199,9 +192,7 @@ $('#estadoCadastro').on('change', function() {
         },
         url      : '/ajax/buscar-cidade-por-uf.php',
         dataType : "json",
-        success  : function(data){
-            console.log(data);
-            
+        success  : function(data){            
             if(data.sucesso){                                
                 $('#cidadeCadastro').prop('disabled', false);
                 $('#cidadeCadastro').append(data.data);
@@ -213,7 +204,7 @@ $('#estadoCadastro').on('change', function() {
             alert('Um problema impediu a exclusão.');
         },
         beforeSend:function(data){            
-            $('#loader').show();
+            $('#loader').css('display', 'flex');
             $('#cidadeCadastro').empty();
         },
         complete:function(data){

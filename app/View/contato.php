@@ -6,7 +6,7 @@
     <td>{{dataCadastro}}</td>
     <td>
         <div class="delete">
-            <i class="material-icons" title="deletar" data-nis="{{nis}}">delete_forever</i>
+            <i class="material-icons" title="deletar" data-id="{{id}}">delete_forever</i>
             <div class="spinner-border"></div>
         </div>
     </td>

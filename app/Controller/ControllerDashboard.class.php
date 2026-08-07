@@ -72,6 +72,7 @@ class ControllerDashboard{
 
         foreach ($contatos as $value) {
             $dadosLayout = [
+                'id' => $value->id,
                 'nome' => $value->nome, 
                 'telefone' => Utils::formatarTelefone($value->telefone),
                 'cidade' => $value->nomeCidade, 

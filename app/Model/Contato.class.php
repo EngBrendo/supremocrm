@@ -132,12 +132,12 @@ class Contato {
     /**
      * Deleta um contato do banco
      * @method deletarContato
+     * @param int $idContato
      * @return array
      */
-    public static function deletarContato($nis){
-        if(strlen($nis) != 11 or !preg_match('/^[0-9]+$/', $nis)) return ['sucesso' => false, 'mensagem' => 'NIS inválido.'];
-
-        return ['sucesso' => (new Table('contato'))->delete('nis = "'.$nis.'"'), 'mensagem' => 'Erro ao deletar contato.'];
+    public static function deletarContato($idContato){
+        if(!is_numeric($idContato)) return false;
+        return (new Table('contato'))->delete('id = '.$idContato);
     }
 
 }
