@@ -27,9 +27,8 @@ document.querySelectorAll('.telefone').forEach(campo => {
   });
 });
 
-// modal de cadastro fecha. limpa o nome e desabilita o botão
+// modal de cadastro fecha
 $('#modalCadastro').on('hidden.bs.modal', function() {
-    $('#nomeCadastro').val('');
     $('#cadastrar').html('Cadastrar');
 });
 
@@ -47,7 +46,10 @@ $('#cadastrar').click(function() {
     jQuery.ajax({
         type     : "POST",
         data     : {
-            nome: nome
+            nome: nome,
+            telefone: telefone,
+            idCidade: cidade,
+            idEstado: estado
         },
         url      : '/ajax/cadastrar-contato.php',
         dataType : "json",
@@ -59,7 +61,7 @@ $('#cadastrar').click(function() {
 
             if(data.sucesso){
                 titulo   = 'Cadastrado com sucesso!';
-                mensagem = 'Nome: '+nome+'<br>NIS: <strong>'+data.nis+'</strong>';
+                mensagem = 'Nome: '+nome+'<br>Telefone: <strong>'+telefone+'</strong>';
 
                 inserirContatoTabela(data.layout);
             }

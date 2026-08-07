@@ -50,6 +50,17 @@ class Cidade {
     }
 
     /**
+     * Busca uma cidade pelo ID
+     * @method getCidade
+     * @param int $id
+     * @return Cidade|false
+     */
+    public static function getCidade($id){
+        if(!is_numeric($id)) return false;
+        return (new Table('cidade'))->select('id = '.$id)->fetchObject(self::class);
+    }
+
+    /**
      * Busca cidades por Uf
      * @method getCidadesPorUf
      * @param string $uf

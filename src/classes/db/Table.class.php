@@ -25,6 +25,12 @@ class Table extends DBConnect{
     private $table = null;
 
     /**
+     * ID inserido
+     * @var integer
+     */
+    private $lastInsertId  = null;
+
+    /**
      * Construtor responsável por definir os valores das propriedades da tabela
      * @method __construct
      * @param  string $table Nome da tabela no banco de dados
@@ -47,6 +53,7 @@ class Table extends DBConnect{
 
         try {
             $result = self::$conexao->prepare($query)->execute();
+            $this->lastInsertId = self::$conexao->lastInsertId();
         }catch (Exception $e) {
             self::$conexao->rollBack();
         }
@@ -129,6 +136,15 @@ class Table extends DBConnect{
     $query = "DELETE FROM ".$this->table." WHERE ".$where;
     
     return $this->execute($query);
+  }
+
+  /**
+   * Responsável por retornar o último ID inserido
+   * @method getLastInsertId
+   * @return int
+   */
+  public function getLastInsertId(){
+    return $this->lastInsertId;
   }
 
 }

@@ -71,62 +71,71 @@ class Contato {
     public static function getContatos(){
         $query = 'SELECT a.*, b.nome AS nomeCidade, c.nome AS nomeEstado  FROM contato a
                 INNER JOIN cidade b ON b.id = a.id_cidade
-                INNER JOIN estado c ON c.id = a.id_estado';
+                INNER JOIN estado c ON c.id = a.id_estado
+                ORDER BY a.nome ASC';
 
         return (new Table('contato'))->query($query)->fetchAll(PDO::FETCH_CLASS, self::class);
     }
 
-    /**
-     * Busca um contato no banco pelo nis
-     * @method getContato
-     * @return array
-     */
-    public static function getContato($nis){
-        if(!is_string($nis) or strlen($nis) != 11 or !preg_match('/^[0-9]+$/', $nis)) return ['sucesso' => false, 'mensagem' => 'NIS inválido.'];
-
-        $obContato = (new Table('contato'))->select('nis = "'.$nis.'"')->fetchObject(self::class);
-
-        if(!($obContato instanceof Contato)) return ['suecsso' => false, 'mensagem' => 'Contato não não encontrado.'];
-
-        return ['sucesso' => true, 'nome' => $obContato->nome];
-    }
 
     /**
      * Cadastra um contato
      * @method cadastrarContato
      * @return array
      */
-    public function cadastrarContato($nome){
-        if(!is_string($nome)) return ['sucesso' => false, 'mensagem' => 'Nome inválido.'];
+    public static function cadastrarContato($nome, $telefone, $idCidade, $idEstado){
+        $telefoneSemMascara = preg_replace("/[^0-9]/", "", trim($telefone));
 
-        $nome = trim($nome);
+        $validacaoContato = self::validarDadosContato($nome, $telefoneSemMascara, $idCidade, $idEstado);
+        if(!$validacaoContato['sucesso']) return $validacaoContato;
 
-        if(!strlen($nome)) return ['sucesso' => false, 'mensagem' => 'Nome inválido.'];
+        $dadosCadastro = [
+            'nome' => $nome,
+            'telefone' => $telefoneSemMascara,
+            'id_cidade' => $idCidade,
+            'id_estado' => $idEstado
+        ];
 
-        if(!preg_match("/^[a-zA-Zà-úÀ-Ú\s]+$/", $nome)) return ['sucesso' => false, 'mensagem' => 'O nome possui caracteres inválidos.'];
+        $obTabela = new Table('contato');
 
-        $obTabela = (new Table('contato'));
-
-        $maxTentativas = 50;
-        $numTentativas = 0;
-
-        $nis = self::gerarNis();
-        while($obTabela->select('nis = "'.$nis.'"')->rowCount() > 0){
-            if($numTentativas >= $maxTentativas) return ['sucesso' => false, 'mensagem' => 'Problemas ao gerar NIS do contato.'];
-            $nis = self::gerarNis();
-        }
-
-        if(!$obTabela->insert(['nome' => $nome, 'nis' => $nis])) return ['sucesso' => false, 'mensagem' => 'Erro no cadastro das informações.'];
+        if(!($obTabela)->insert($dadosCadastro)) return ['sucesso' => false, 'mensagem' => 'Erro no cadastro das informações.'];
 
         $variaveisLayout = [
+            'id' => $obTabela->getLastInsertId(),
             'nome' => $nome,
-            'nis'  => $nis,
+            'telefone' => $telefone,
+            'cidade' => $validacaoContato['cidade']->nome,
+            'estado' => $validacaoContato['estado']->nome, 
             'dataCadastro' => date("d-m-Y H:m:s", time())
         ];
 
         $layout = RenderTemplate::getLayout('contato', $variaveisLayout);
 
-        return ['sucesso' => true, 'nis' => $nis, 'layout' => $layout, 'mensagem' => ''];
+        return ['sucesso' => true, 'layout' => $layout, 'mensagem' => ''];
+    }
+
+    /**
+     * Deleta um contato do banco
+     * @method validarDadosContato
+     * @param int $idContato
+     * @return array
+     */
+    public static function validarDadosContato(&$nome, &$telefone, $idCidade, $idEstado){
+        if(!strlen($nome) or !strlen($telefone) or !is_numeric($idCidade) or !is_numeric($idEstado)) return ['sucesso' => false, 'mensagem' => 'Dados inválidos.'];
+
+        $nome = trim($nome);
+        if(!preg_match("/^[a-zA-Zà-úÀ-Ú\s]+$/", $nome)) return ['sucesso' => false, 'mensagem' => 'O nome possui caracteres inválidos.'];
+
+        // valida duplicação do telefone
+        if((new Table('contato'))->select('telefone = "'.$telefone.'"')->rowCount() > 0) return ['sucesso' => false, 'mensagem' => 'Telefone já cadastrado.'];
+
+        $cidade = Cidade::getCidade($idCidade);
+        if(! ($cidade instanceof Cidade)) return ['sucesso' => false, 'mensagem' => 'Cidade não encontrada nos registros.'];
+
+        $estado = Estado::getEstado($idEstado);
+        if(! ($estado instanceof Estado)) return ['sucesso' => false, 'mensagem' => 'Estado não encontrada nos registros.'];
+
+        return ['sucesso' => true, 'cidade' => $cidade, 'estado' => $estado];
     }
 
     /**

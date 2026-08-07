@@ -57,6 +57,18 @@ class Estado {
     }
 
     /**
+     * Busca um Estado pelo ID
+     * @method getEstado
+     * @param int $id
+     * @return Estado|false
+     */
+    public static function getEstado($id){
+        if(!is_numeric($id)) return false;
+        return (new Table('estado'))->select('id = '.$id)->fetchObject(self::class);
+    }
+
+
+    /**
      * Busca todos os Estados no banco
      * @method getEstados
      * @return array
