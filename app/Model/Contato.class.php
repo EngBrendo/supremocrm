@@ -232,7 +232,9 @@ class Contato {
         if(! ($cidade instanceof Cidade)) return ['sucesso' => false, 'mensagem' => 'Cidade não encontrada nos registros.'];
 
         $estado = Estado::getEstado($idEstado);
-        if(! ($estado instanceof Estado)) return ['sucesso' => false, 'mensagem' => 'Estado não encontrada nos registros.'];
+        if(! ($estado instanceof Estado)) return ['sucesso' => false, 'mensagem' => 'Estado não encontrado nos registros.'];
+
+        if($cidade->uf != $estado->uf) return ['sucesso' => false, 'mensagem' => 'Cidade selecionada não pertence ao Estado selecionado.'];
 
         return ['sucesso' => true, 'cidade' => $cidade, 'estado' => $estado];
     }
